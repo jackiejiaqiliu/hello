@@ -21,7 +21,7 @@ door_input=['-','-','-','-']
 door_order=0
 
 #
-LED=2 
+LED=5
 def Signal_Init():
   GPIO.cleanup()
   GPIO.setmode(GPIO.BCM)
@@ -113,6 +113,7 @@ def finger_find():
     serial.write(serch)
     time.sleep(1)
     serch_data = recv(serial)
+    print(serch_data)
     serch_con = str(binascii.b2a_hex(serch_data))[20:22]
     if (serch_con == '09'):
         print("指纹不匹配")
@@ -131,6 +132,7 @@ def finger_input():
     serial.write(d)
     time.sleep(1)
     data =recv(serial)
+    print(data)
     if data != b'' :
         data_con = str(binascii.b2a_hex(data))[20:22]
         if(data_con == '02'):
@@ -166,7 +168,7 @@ def rc522_write():
 
 def rc522_read():
   id, text = reader.read()
-  #print(id)
+  print(id)
   if id == 288092824153:
     print ('password right! door open')
     GPIO.output(LED,GPIO.LOW)
@@ -209,9 +211,9 @@ def job1():
     time.sleep(0.1)
 
 def job2():
-  while True:
-    #finger_find()
-    finger_input()
+  while True:    
+    finger_find()
+    #finger_input()
     time.sleep(0.1)
 
 def job3():
@@ -227,7 +229,7 @@ if __name__ == '__main__':
     print('Systerm start!')
     Signal_Init()
     reader = SimpleMFRC522()
-    serial = serial.Serial('/dev/ttyAMA0', 57600, timeout=0.5)  #/dev/ttyUSB0
+    serial = serial.Serial('/dev/ttyUSB0', 57600, timeout=0.5)  #/dev/ttyUSB0
     if serial.isOpen() :
         print("open success")
     else :
@@ -237,7 +239,7 @@ if __name__ == '__main__':
     thread2 = threading.Thread(target = job2, args = ())
     thread3 = threading.Thread(target = job3, args = ())
     thread1.start()
-    thread2.start()
+    #thread2.start()
     thread3.start()
 
         
