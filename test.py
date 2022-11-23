@@ -24,7 +24,7 @@ error_count=0
 p2 = vlc.MediaPlayer("/home/pi/hello/alarm.mp3") 
 
 #
-LED=6
+LED=5
 def Signal_Init():
   GPIO.cleanup()
   GPIO.setmode(GPIO.BCM)
@@ -174,10 +174,9 @@ def rc522_read():
   print(id)
   if id == 288092824153:
     print ('password right! door open')
-    GPIO.setup(6,GPIO.OUT)
-    GPIO.output(6,GPIO.LOW)
-    time.sleep(0.01)
-    GPIO.output(6,GPIO.HIGH)
+    GPIO.output(LED,GPIO.LOW)
+    time.sleep(5)
+    GPIO.output(LED,GPIO.HIGH)
 
 def Key_Deal():
     global door_order
@@ -254,7 +253,7 @@ if __name__ == '__main__':
     thread1 = threading.Thread(target = job1, args = ())
     thread2 = threading.Thread(target = job2, args = ())
     thread3 = threading.Thread(target = job3, args = ())
-    #thread1.start()
+    thread1.start()
     #thread2.start()
     thread3.start()
 
