@@ -11,17 +11,20 @@ import serial.tools.list_ports
 from mfrc522 import SimpleMFRC522
 import threading
 import operator
+import vlc
 
 #参考：https://blog.csdn.net/qq_44941069/article/details/123590351
 
 Sys_Run=True
 Test_Num=0
 door_set=['1','2','3','4']
-door_input=['-','-','-','-']
+door_input=[]
 door_order=0
+error_count=0
+p2 = vlc.MediaPlayer("/home/pi/hello/alarm.mp3") 
 
 #
-LED=5
+LED=6
 def Signal_Init():
   GPIO.cleanup()
   GPIO.setmode(GPIO.BCM)
@@ -171,13 +174,16 @@ def rc522_read():
   print(id)
   if id == 288092824153:
     print ('password right! door open')
-    GPIO.output(LED,GPIO.LOW)
-    time.sleep(5)
-    GPIO.output(LED,GPIO.HIGH)
+    GPIO.setup(6,GPIO.OUT)
+    GPIO.output(6,GPIO.LOW)
+    time.sleep(0.01)
+    GPIO.output(6,GPIO.HIGH)
 
 def Key_Deal():
     global door_order
     global door_input
+    global error_count
+    global p2
     key=None
     key=getkey()
     if not key==None:
@@ -185,6 +191,7 @@ def Key_Deal():
         if key=='*':  #确认密码
             if operator.eq(door_input,door_set)==True:
                 print ('password right! door open')
+                p2.stop()
                 GPIO.output(LED,GPIO.LOW)
                 time.sleep(5)
                 GPIO.output(LED,GPIO.HIGH)
@@ -192,6 +199,15 @@ def Key_Deal():
                 door_order=0
             else:
                 print ('password error! door close')
+                if error_count<2:
+                    error_count+=1
+                    p = vlc.MediaPlayer("/home/pi/hello/incorrect.mp3") 
+                    p.play()
+                    #time.sleep(3)
+                    #p.stop()
+                else:
+                    error_count=0
+                    p2.play()
                 door_input=[]
                 door_order=0
         elif key=='A':  #写入RC522
@@ -229,7 +245,7 @@ if __name__ == '__main__':
     print('Systerm start!')
     Signal_Init()
     reader = SimpleMFRC522()
-    serial = serial.Serial('/dev/ttyUSB0', 57600, timeout=0.5)  #/dev/ttyUSB0
+    serial = serial.Serial('/dev/ttyUSB1', 57600, timeout=0.5)  #/dev/ttyUSB0
     if serial.isOpen() :
         print("open success")
     else :
@@ -238,7 +254,7 @@ if __name__ == '__main__':
     thread1 = threading.Thread(target = job1, args = ())
     thread2 = threading.Thread(target = job2, args = ())
     thread3 = threading.Thread(target = job3, args = ())
-    thread1.start()
+    #thread1.start()
     #thread2.start()
     thread3.start()
 
