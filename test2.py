@@ -248,7 +248,7 @@ if __name__ == '__main__':
     print('Systerm start!')
     Signal_Init()
     reader = SimpleMFRC522()
-    serial = serial.Serial('/dev/ttyUSB1', 57600, timeout=0.5)  #/dev/ttyUSB0
+    serial = serial.Serial('/dev/ttyUSB0', 57600, timeout=0.5)  #/dev/ttyUSB0
     if serial.isOpen() :
         print("open success")
     else :
